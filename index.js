@@ -2,6 +2,7 @@ import express from "express";
 import cors from 'cors'
 import "dotenv/config";
 import { MongoClient, ServerApiVersion } from 'mongodb'
+import { ObjectID } from "bson";
 const app = express()
 const port = process.env.PORT || 5000;
 
@@ -17,11 +18,24 @@ async function run(){
         await client.connect()
         const productsCollection = client.db('emmaJohn').collection('products')
         app.get('/products', async (req,res) => {
+            const page = parseInt(req.query.page)
+            const size = parseInt(req.query.size)
             const query = {}
+            const cursor = productsCollection.find(query)
+            let products;
+            if(page || size) products = await cursor.skip(page * size).limit(size).toArray()
+            else products = await cursor.toArray()
+            res.send(products)
+        } )
+
+        app.post('/productsCart', async (req, res) => {
+            const keys = req.body;
+            const ids = ObjectID(keys)
+            const query = {_id: {$in : ids}}
             const cursor = productsCollection.find(query)
             const products = await cursor.toArray()
             res.send(products)
-        } )
+        })
 
         app.get('/productsCount', async (req, res) => {
             const count = await productsCollection.estimatedDocumentCount()
