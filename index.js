@@ -1,8 +1,7 @@
 import express from "express";
 import cors from 'cors'
 import "dotenv/config";
-import { MongoClient, ServerApiVersion } from 'mongodb'
-import { ObjectID } from "bson";
+import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb'
 const app = express()
 const port = process.env.PORT || 5000;
 
@@ -30,7 +29,7 @@ async function run(){
 
         app.post('/productsCart', async (req, res) => {
             const keys = req.body;
-            const ids = ObjectID(keys)
+            const ids = keys.map(key => ObjectId(key))
             const query = {_id: {$in : ids}}
             const cursor = productsCollection.find(query)
             const products = await cursor.toArray()
