@@ -20,7 +20,6 @@ async function run(){
             const query = {}
             const cursor = productsCollection.find(query)
             const products = await cursor.toArray()
-            console.log(products.length);
             res.send(products)
         } )
 
